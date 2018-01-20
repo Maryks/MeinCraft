@@ -7,7 +7,7 @@ Necessary:
 * glm
 
 Visual Studio 2015 instructions:
-* Create new visual studio project: Win32 Console Application: console application, empty project
+* Create a new visual studio project: Win32 Console Application: console application, empty project
 * Set the following properties:
   + Debugging: General
     - 'Environment' -> 'PATH=C:\(...)\SFML\SFML-2.4.2-windows-vc14-32-bit\SFML-2.4.2\bin'
@@ -18,11 +18,7 @@ Visual Studio 2015 instructions:
   + Linker: Input
     - 'Addtional Dependencies' -> 'glew32.lib;glu32.lib;opengl32.lib;sfml-window-d.lib;sfml-graphics-d.lib;sfml-system-d.lib;(...)'
 * Clone repository into the project directory:
-  + navigate to project directory and create a new git repository
-    - git init
-  + set github as origin
-    - git remote add origin 'URL'
-  + fetch from origin and merge to local master branch
-    - git pull origin master
-  + set remote branch as upstream
-    - git push --set-upstream origin master
+  + Temporarily move all files from project directory somewhere else
+  + Delete the project directory
+  + Clone the git repository into a folder of the same name (and location) as the (now deleted) project directory
+  + Move the project files back into the project directory
