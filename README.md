@@ -17,5 +17,10 @@ Visual Studio 2015 instructions:
     - 'Additional Library Directories' -> 'C:\(...)\SFML\SFML-2.4.2-windows-vc14-32-bit\SFML-2.4.2\lib;C:\(...)\opengl-wrappers\glew-2.0.0\lib\Release\Win32'
   + Linker: Input
     - 'Addtional Dependencies' -> 'glew32.lib;glu32.lib;opengl32.lib;sfml-window-d.lib;sfml-graphics-d.lib;sfml-system-d.lib;(...)'
-* Clone repository:
-  + 
+* Clone repository into the project directory:
+  + navigate to project directory and create a new git repository
+    - git init
+  + set github as origin
+    - git remote add origin 'URL'
+  + fetch from origin and merge to local master branch
+    - git pull origin master
