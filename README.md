@@ -24,3 +24,5 @@ Visual Studio 2015 instructions:
     - git remote add origin 'URL'
   + fetch from origin and merge to local master branch
     - git pull origin master
+  + set remote branch as upstream
+    - git push --set-upstream origin master
