@@ -6,6 +6,9 @@
 #include <GL\glew.h>
 #include <SFML\Graphics.hpp>
 
+#include "Camera.h"
+#include "WorldManager.h"
+
 namespace GameConsts
 {
 	const int WINDOW_WIDTH = 800;
@@ -25,7 +28,9 @@ private:
 	void render();
 
 	GLfloat m_deltaTime;
+	Camera m_camera;
 	std::unique_ptr<sf::RenderWindow> m_window;
+	std::unique_ptr<WorldManager> m_worldMgr;
 };
 
 #endif // !GAME_H

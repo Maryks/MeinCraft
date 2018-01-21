@@ -7,6 +7,7 @@
 #include <glm\glm.hpp>
 
 Game::Game()
+	: m_camera(GameConsts::WINDOW_WIDTH, GameConsts::WINDOW_HEIGHT)
 {
 	std::cout << "Game created." << std::endl;
 	this->initialize();
@@ -68,6 +69,8 @@ void Game::initialize()
 	glEnable(GL_TEXTURE_2D);	// tell OpenGL to use textures when drawing
 
 	m_deltaTime = 0.f;	// makes camera velocity independent of frame rate
+
+	m_worldMgr = std::make_unique<WorldManager>(m_camera);
 }
 
 void Game::processEvents()
@@ -84,6 +87,10 @@ void Game::processEvents()
 			{
 				m_window->close();
 			}
+			break;
+		case sf::Event::MouseWheelScrolled:
+			//scrollCallback(inputEvent.mouseWheelScroll.delta);
+			m_camera.processMouseScroll(inputEvent.mouseWheelScroll.delta);
 			break;
 		default:
 			break;
