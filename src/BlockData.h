@@ -34,15 +34,12 @@ namespace Block
 
 	class BlockData
 	{
-		public:
-			//--constructors--
-			BlockData();
+	public:
+		BlockData();
 
-			//--methods--
-			std::map<Block::ID, std::unique_ptr<Data>> m_DataHolder;
+		std::map<Block::ID, std::unique_ptr<Data>> m_DataHolder;
 
-			//--variables--
-			float m_stride;	// offset between adjacent textures in texture sheet
+		float m_stride;	// offset between adjacent textures in texture sheet
 	};
 }
 

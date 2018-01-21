@@ -1,6 +1,14 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+#include <SFML\Graphics.hpp>
+
+#include <iostream>
+#include <vector>
+
+#include "BlockData.h"
+#include "typedefs.h"
+
 namespace WorldConsts
 {
 	// chunklet size in blocks
@@ -20,16 +28,18 @@ class World
 public:
 	World();
 
+	std::vector<id_t> getChunk(int, int);
+
 private:
 	void generateChunk(int, int);
-	//int getIndex(int, int, int);
+	int getIndex(int, int, int);
 
-	//--variables--
 	int m_chunkSizeX;
 	int m_chunkSizeY;
 	int m_chunkSizeZ;
 	int m_nofBlocks;
 
+	std::vector<id_t> m_chunk;
 };
 
 #endif // !WORLD_H

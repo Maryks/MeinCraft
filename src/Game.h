@@ -7,6 +7,7 @@
 #include <SFML\Graphics.hpp>
 
 #include "Camera.h"
+#include "Renderer.h"
 #include "WorldManager.h"
 
 namespace GameConsts
@@ -29,6 +30,7 @@ private:
 
 	GLfloat m_deltaTime;
 	Camera m_camera;
+	Renderer m_renderer;
 	std::unique_ptr<sf::RenderWindow> m_window;
 	std::unique_ptr<WorldManager> m_worldMgr;
 };

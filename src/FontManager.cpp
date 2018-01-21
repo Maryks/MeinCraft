@@ -4,7 +4,7 @@
 
 FontManager::FontManager()
 {
-	std::string path = "Fonts/";
+	std::string path = "src/Fonts/";
 
 	this->load(Fonts::Arial, path + "arial.ttf");
 

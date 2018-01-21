@@ -1,10 +1,18 @@
-#include "Game.h"
-
-#include <iostream>
-
 #include <SFML\Graphics.hpp>
 #include <GL\glew.h>
 #include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+#include <glm\gtc\type_ptr.hpp>
+
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "BlockData.h"
+#include "StaticFunctions.h"
+
+#include "Game.h"
 
 Game::Game()
 	: m_camera(GameConsts::WINDOW_WIDTH, GameConsts::WINDOW_HEIGHT)
@@ -25,6 +33,7 @@ void Game::run()
 	{
 		fps += fpsClock.restart().asSeconds();
 		m_deltaTime = deltaClock.restart().asSeconds();
+		StaticFunctions::playerInput(*m_window, m_camera, m_deltaTime);
 
 		this->processEvents();
 		this->render();
@@ -38,6 +47,19 @@ void Game::run()
 		}
 		++counter;
 
+		int xCamera = static_cast<int>(std::floor(m_camera.getPosition().x));
+		int yCamera = static_cast<int>(std::floor(m_camera.getPosition().y));
+		int zCamera = static_cast<int>(std::floor(m_camera.getPosition().z));
+		int xChunk = xCamera >= 0 ? xCamera / WorldConsts::CHUNKSIZE_X : xCamera / WorldConsts::CHUNKSIZE_X - 1;
+		int zChunk = zCamera >= 0 ? zCamera / WorldConsts::CHUNKSIZE_Z : zCamera / WorldConsts::CHUNKSIZE_Z - 1;
+		m_renderer.addText("FPS: " + std::to_string(iFps), 10.f, 10.f);
+		m_renderer.addText("Camera X: " + std::to_string(xCamera), 10.f, 40.f);
+		m_renderer.addText("Camera Y: " + std::to_string(yCamera), 10.f, 70.f);
+		m_renderer.addText("Camera Z: " + std::to_string(zCamera), 10.f, 100.f);
+		m_renderer.addText("Chunk X: " + std::to_string(xChunk), 250.f, 10.f);
+		m_renderer.addText("Chunk Z: " + std::to_string(zChunk), 250.f, 40.f);
+
+		m_renderer.displayText(*m_window);
 		m_window->display();
 	}
 }
@@ -47,7 +69,7 @@ void Game::initialize()
 	sf::ContextSettings contextSettings;
 	contextSettings.depthBits = 24;	// bits of depth buffer
 	contextSettings.stencilBits = 8;	// bits of stencil buffer
-	m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(GameConsts::WINDOW_WIDTH, GameConsts::WINDOW_HEIGHT), "MeinCraft", sf::Style::Close | sf::Style::Titlebar, contextSettings);
+	m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(GameConsts::WINDOW_WIDTH, GameConsts::WINDOW_HEIGHT), "MineCraft", sf::Style::Close | sf::Style::Titlebar, contextSettings);
 	m_window->setPosition(sf::Vector2i(500, 50));
 	//m_window->setVerticalSyncEnabled(true);
 	m_window->setMouseCursorVisible(false);
@@ -70,11 +92,13 @@ void Game::initialize()
 
 	m_deltaTime = 0.f;	// makes camera velocity independent of frame rate
 
-	m_worldMgr = std::make_unique<WorldManager>(m_camera);
+	m_worldMgr = std::make_unique<WorldManager>(m_camera, m_renderer);
 }
 
 void Game::processEvents()
 {
+	static bool wireframeMode = true;	// gl polygone mode
+
 	sf::Event inputEvent;	// flush queue every frame
 	while (m_window->pollEvent(inputEvent))
 	{
@@ -86,6 +110,19 @@ void Game::processEvents()
 			if (inputEvent.key.code == sf::Keyboard::Escape)
 			{
 				m_window->close();
+			}
+			if (inputEvent.key.code == sf::Keyboard::Z)
+			{
+				if (wireframeMode)
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					wireframeMode = false;
+				}
+				else
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					wireframeMode = true;
+				}
 			}
 			break;
 		case sf::Event::MouseWheelScrolled:
@@ -100,5 +137,12 @@ void Game::processEvents()
 
 void Game::render()
 {
+	m_window->setActive(true);
 
+	glClearColor(0.0, 0.0, 0.0, 1.0);	// black
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+	m_worldMgr->addToRenderer(m_renderer);
+	m_renderer.draw(m_camera);
+	m_worldMgr->deleteWorld();
 }
