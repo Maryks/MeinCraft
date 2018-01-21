@@ -1,1 +1,7 @@
-"" 
+*.sln
+*.db
+*.opendb
+*.vcxproj
+*.filters
+*.user
+.vs/ 
