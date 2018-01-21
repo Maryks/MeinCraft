@@ -7,3 +7,4 @@
 .vs/ 
 Debug/
 *todo.txt
+/info.txt
