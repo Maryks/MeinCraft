@@ -27,6 +27,7 @@ WorldManager::WorldManager(Camera& camera, Renderer& renderer)
 	std::cout << "THREAD::World generation thread launched." << std::endl;
 }
 
+// join world generation thread
 WorldManager::~WorldManager()
 {
 	m_worldExists = false;
@@ -38,12 +39,14 @@ WorldManager::~WorldManager()
 	if (m_chunks.size() != m_worldSize * m_worldSize)
 	{
 		std::cout << "Number of chunks in std::map: " << m_chunks.size() << std::endl;
+		std::cout << "There should be WORLDSIZE times WORLDSIZE chunks." << std::endl;
 	}
 }
 
 void WorldManager::addToRenderer(Renderer& renderer)
 {
-	std::lock_guard<std::mutex> lock(m_threadMutex);	// mutex is automatically released when lock() goes out of scope
+	// mutex is automatically released when lock() goes out of scope
+	std::lock_guard<std::mutex> lock(m_threadMutex);
 
 	for (auto& chunk : m_chunks)
 	{
@@ -54,8 +57,10 @@ void WorldManager::addToRenderer(Renderer& renderer)
 	}
 }
 
+// delete all chunks that have been marked for destruction
 void WorldManager::deleteWorld()
 {
+	// mutex is automatically released when lock() goes out of scope
 	std::lock_guard<std::mutex> lock(m_threadMutex);
 
 	if (m_chunks.size() > 0)
@@ -107,7 +112,7 @@ void WorldManager::generateWorld(Camera& camera, Renderer& renderer)
 		}
 	}
 
-	// remove chunks outside of camera radius
+	// mark chunks outside of camera radius for destruction
 	if (m_lastCenterChunk == m_centerChunk)
 	{
 		return;
