@@ -37,7 +37,6 @@ private:
 	int m_chunkSizeX;
 	int m_chunkSizeY;
 	int m_chunkSizeZ;
-	int m_nofBlocks;
 
 	std::vector<id_t> m_chunk;
 };

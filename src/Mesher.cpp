@@ -110,19 +110,10 @@ void Mesher::mesh(const std::vector<id_t>& world, coords_t& vertexCoordinates, c
 
 id_t Mesher::getBlockID(int x, int y, int z)
 {
-	if (x < 0)
-		return Block::ID::Air;
-	if (x >= m_chunkSizeX)
-		return Block::ID::Air;
-	if (z < 0)
-		return Block::ID::Air;
-	if (z >= m_chunkSizeZ)
-		return Block::ID::Air;
-	if (y < 0)
-		return Block::ID::Air;
-	if (y >= m_chunkSizeY)
-		return Block::ID::Air;
-	return m_worldData->at(x + (y + z * m_chunkSizeY) * m_chunkSizeX);
+	++x;
+	++y;
+	++z;
+	return m_worldData->at(x + (y + z * (m_chunkSizeY + 2)) * (m_chunkSizeX + 2));
 }
 
 void Mesher::setTextureCoordinates(id_t value, Face face)

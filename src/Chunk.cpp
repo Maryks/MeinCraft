@@ -7,7 +7,7 @@
 Chunk::Chunk()
 	:m_hasMesh(false),
 	m_hasWorldData(false),
-	m_isMarkedForDestruction(false)
+	m_isMarkedForDestruction(true)
 {}
 
 void Chunk::addVaoToRenderer(Renderer& renderer)

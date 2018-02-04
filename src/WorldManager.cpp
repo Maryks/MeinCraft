@@ -15,7 +15,8 @@ WorldManager::WorldManager(Camera& camera, Renderer& renderer)
 	int zCamera = static_cast<int>(std::floor(camera.getPosition().z));
 	int xCurrentCenterChunk = xCamera >= 0 ? xCamera / WorldConsts::CHUNKSIZE_X : xCamera / WorldConsts::CHUNKSIZE_X - 1;
 	int zCurrentCenterChunk = zCamera >= 0 ? zCamera / WorldConsts::CHUNKSIZE_Z : zCamera / WorldConsts::CHUNKSIZE_Z - 1;
-	m_lastCenterChunk = xz_t(xCurrentCenterChunk, zCurrentCenterChunk);
+	// initialize m_lastCenterChunk with values different from current chunk in order to trigger loadChunks() when first entering generateWorld()
+	m_lastCenterChunk = xz_t(xCurrentCenterChunk-1, zCurrentCenterChunk-1);
 
 	this->initializeChunkMap();
 
@@ -67,16 +68,16 @@ void WorldManager::generateWorld(Camera& camera, Renderer& renderer)
 	int zCurrentCenterChunk = zCamera >= 0 ? zCamera / WorldConsts::CHUNKSIZE_Z : zCamera / WorldConsts::CHUNKSIZE_Z - 1;
 	m_centerChunk = xz_t(xCurrentCenterChunk, zCurrentCenterChunk);
 
-	if (m_lastCenterChunk != m_centerChunk)	// chunks need to be deleted and generated
+	if (m_lastCenterChunk != m_centerChunk)	// the camera moved into a different chunk
 	{
 		// mark chunks outside camera radius for destruction
 		// if a chunk is marked in such a way, it can be replaced by a new one (done by loadChunks())
 		// and should, until the new one is created, not be rendered
 		this->markForDestruction();
-	}
 
-	// load chunks inside camera radius
-	this->loadChunks();
+		// load chunks inside camera radius
+		this->loadChunks();
+	}
 
 	m_lastCenterChunk = m_centerChunk;
 }
@@ -156,9 +157,6 @@ void WorldManager::initializeChunkMap()
 		{
 			xz_t key = this->getArrayIndex(x, z);
 			m_chunks.emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple());
-			m_chunks[key].addWorldData(m_world, key);
-			m_chunks[key].makeMesh();
-			m_chunks[key].m_isMarkedForDestruction = true;
 		}
 	}
 }
