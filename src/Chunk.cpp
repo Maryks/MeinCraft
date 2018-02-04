@@ -18,6 +18,8 @@ void Chunk::addVaoToRenderer(Renderer& renderer)
 
 void Chunk::addWorldData(World& world, xz_t position)
 {
+	m_vertCoords.clear();
+	m_texCoords.clear();
 	m_worldData = world.getChunk(position.first, position.second);
 	m_hasWorldData = true;
 	m_position = position;

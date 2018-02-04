@@ -144,5 +144,4 @@ void Game::render()
 
 	m_worldMgr->addToRenderer(m_renderer);
 	m_renderer.draw(m_camera);
-	m_worldMgr->deleteWorld();
 }

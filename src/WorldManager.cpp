@@ -17,6 +17,8 @@ WorldManager::WorldManager(Camera& camera, Renderer& renderer)
 	int zCurrentCenterChunk = zCamera >= 0 ? zCamera / WorldConsts::CHUNKSIZE_Z : zCamera / WorldConsts::CHUNKSIZE_Z - 1;
 	m_lastCenterChunk = xz_t(xCurrentCenterChunk, zCurrentCenterChunk);
 
+	this->initializeChunkMap();
+
 	m_thread.emplace_back([&]() {
 		while (m_worldExists)
 		{
@@ -38,7 +40,7 @@ WorldManager::~WorldManager()
 	std::cout << "THREAD::World generation thread joined. (" << m_thread.size() << ")" << std::endl;
 	if (m_chunks.size() != m_worldSize * m_worldSize)
 	{
-		std::cout << "Number of chunks in std::map: " << m_chunks.size() << std::endl;
+		std::cout << "Number of chunks in m_chunks: " << m_chunks.size() << std::endl;
 		std::cout << "There should be WORLDSIZE times WORLDSIZE chunks." << std::endl;
 	}
 }
@@ -57,28 +59,6 @@ void WorldManager::addToRenderer(Renderer& renderer)
 	}
 }
 
-// delete all chunks that have been marked for destruction
-void WorldManager::deleteWorld()
-{
-	// mutex is automatically released when lock() goes out of scope
-	std::lock_guard<std::mutex> lock(m_threadMutex);
-
-	if (m_chunks.size() > 0)
-	{
-		for (std::map<xz_t, Chunk>::iterator it = m_chunks.begin(); it != m_chunks.end();)
-		{
-			if (it->second.m_isMarkedForDestruction == true)
-			{
-				it = m_chunks.erase(it);
-			}
-			else
-			{
-				++it;
-			}
-		}
-	}
-}
-
 void WorldManager::generateWorld(Camera& camera, Renderer& renderer)
 {
 	int xCamera = static_cast<int>(std::floor(camera.getPosition().x));
@@ -87,64 +67,98 @@ void WorldManager::generateWorld(Camera& camera, Renderer& renderer)
 	int zCurrentCenterChunk = zCamera >= 0 ? zCamera / WorldConsts::CHUNKSIZE_Z : zCamera / WorldConsts::CHUNKSIZE_Z - 1;
 	m_centerChunk = xz_t(xCurrentCenterChunk, zCurrentCenterChunk);
 
+	if (m_lastCenterChunk != m_centerChunk)	// chunks need to be deleted and generated
+	{
+		// mark chunks outside camera radius for destruction
+		// if a chunk is marked in such a way, it can be replaced by a new one (done by loadChunks())
+		// and should, until the new one is created, not be rendered
+		this->markForDestruction();
+	}
+
 	// load chunks inside camera radius
-	for (int z = m_centerChunk.second - m_worldSizeHalf; z <= m_centerChunk.second + m_worldSizeHalf; ++z)
-	{
-		for (int x = m_centerChunk.first - m_worldSizeHalf; x <= m_centerChunk.first + m_worldSizeHalf; ++x)
-		{
-			xz_t key = xz_t(x, z);
+	this->loadChunks();
 
-			if (m_chunks.count(key) == 0)	// chunk does not yet exist
-			{
-				// equivalent to m_chunks[key];:
-				m_chunks.emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple());
-			}
+	m_lastCenterChunk = m_centerChunk;
+}
 
-			if (m_chunks.at(key).m_hasWorldData == false)
-			{
-				m_chunks.at(key).addWorldData(m_world, key);
-			}
+xz_t WorldManager::getArrayIndex(int x, int z)
+{
+	// this function enables a "rolling array" by calculating a modulo operation
+	// we do not want to add and remove elements in m_chunks_tmp
+	// but instead overwrite destroyed chunks with newly generated ones
 
-			if (m_chunks.at(key).m_hasMesh == false)
-			{
-				m_chunks.at(key).makeMesh();
-			}
-		}
-	}
+	int x_tmp = x % m_worldSize;
+	int z_tmp = z % m_worldSize;
+	int x_t = x_tmp < 0 ? x_tmp + m_worldSize : x_tmp;
+	int z_t = z_tmp < 0 ? z_tmp + m_worldSize : z_tmp;
 
-	// mark chunks outside of camera radius for destruction
-	if (m_lastCenterChunk == m_centerChunk)
-	{
-		return;
-	}
+	return xz_t(x_t, z_t);
+}
+
+void WorldManager::markForDestruction()
+{
 	if (m_centerChunk.first - m_lastCenterChunk.first > 0)	// camera moved along positive x-direction
 	{
 		for (int z = m_lastCenterChunk.second - m_worldSizeHalf; z <= m_lastCenterChunk.second + m_worldSizeHalf; ++z)
 		{
-			m_chunks.at(xz_t(m_lastCenterChunk.first - m_worldSizeHalf, z)).m_isMarkedForDestruction = true;
+			m_chunks[this->getArrayIndex(m_lastCenterChunk.first - m_worldSizeHalf, z)].m_isMarkedForDestruction = true;
 		}
 	}
 	if (m_centerChunk.first - m_lastCenterChunk.first < 0)	// camera moved along negative x-direction
 	{
 		for (int z = m_lastCenterChunk.second - m_worldSizeHalf; z <= m_lastCenterChunk.second + m_worldSizeHalf; ++z)
 		{
-			m_chunks.at(xz_t(m_lastCenterChunk.first + m_worldSizeHalf, z)).m_isMarkedForDestruction = true;
+			m_chunks[this->getArrayIndex(m_lastCenterChunk.first + m_worldSizeHalf, z)].m_isMarkedForDestruction = true;
 		}
 	}
 	if (m_centerChunk.second - m_lastCenterChunk.second > 0)	// camera moved along positive z-direction
 	{
 		for (int x = m_lastCenterChunk.first - m_worldSizeHalf; x <= m_lastCenterChunk.first + m_worldSizeHalf; ++x)
 		{
-			m_chunks.at(xz_t(x, m_lastCenterChunk.second - m_worldSizeHalf)).m_isMarkedForDestruction = true;
+			m_chunks[this->getArrayIndex(x, m_lastCenterChunk.second - m_worldSizeHalf)].m_isMarkedForDestruction = true;
 		}
 	}
 	if (m_centerChunk.second - m_lastCenterChunk.second < 0)	// camera moved along negative z-direction
 	{
 		for (int x = m_lastCenterChunk.first - m_worldSizeHalf; x <= m_lastCenterChunk.first + m_worldSizeHalf; ++x)
 		{
-			m_chunks.at(xz_t(x, m_lastCenterChunk.second + m_worldSizeHalf)).m_isMarkedForDestruction = true;
+			m_chunks[this->getArrayIndex(x, m_lastCenterChunk.second + m_worldSizeHalf)].m_isMarkedForDestruction = true;
 		}
 	}
+}
 
-	m_lastCenterChunk = m_centerChunk;
+void WorldManager::loadChunks()
+{
+	for (int z = m_centerChunk.second - m_worldSizeHalf; z <= m_centerChunk.second + m_worldSizeHalf; ++z)
+	{
+		for (int x = m_centerChunk.first - m_worldSizeHalf; x <= m_centerChunk.first + m_worldSizeHalf; ++x)
+		{
+			xz_t key = this->getArrayIndex(x, z);
+
+			if (m_chunks[key].m_isMarkedForDestruction == true)	// chunk does not yet exist
+			{
+				// generate new chunk and mesh it
+				m_chunks[key].m_hasWorldData = false;
+				m_chunks[key].addWorldData(m_world, xz_t(x, z));
+				m_chunks[key].m_hasMesh = false;
+				m_chunks[key].makeMesh();
+				m_chunks[key].m_isMarkedForDestruction = false;
+			}
+		}
+	}
+}
+
+void WorldManager::initializeChunkMap()
+{
+	for (int z = m_centerChunk.second - m_worldSizeHalf; z <= m_centerChunk.second + m_worldSizeHalf; ++z)
+	{
+		for (int x = m_centerChunk.first - m_worldSizeHalf; x <= m_centerChunk.first + m_worldSizeHalf; ++x)
+		{
+			xz_t key = this->getArrayIndex(x, z);
+			m_chunks.emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple());
+			m_chunks[key].addWorldData(m_world, key);
+			m_chunks[key].makeMesh();
+			m_chunks[key].m_isMarkedForDestruction = true;
+		}
+	}
 }

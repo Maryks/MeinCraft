@@ -20,8 +20,8 @@ public:
 	~WorldManager();
 
 	void addToRenderer(Renderer&);
-	void deleteWorld();
 	void generateWorld(Camera&, Renderer&);
+	void initializeChunkMap();
 
 	xz_t m_centerChunk;
 	xz_t m_lastCenterChunk;
@@ -31,6 +31,10 @@ public:
 	const int m_worldSizeHalf;
 
 private:
+	xz_t getArrayIndex(int, int);
+	void loadChunks();
+	void markForDestruction();
+
 	World m_world;
 	std::mutex m_threadMutex;
 	std::vector<std::thread> m_thread;

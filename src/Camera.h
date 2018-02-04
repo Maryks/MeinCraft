@@ -15,7 +15,7 @@ enum Camera_Movement
 };
 
 namespace {
-	const GLfloat SPEED = 20.f;
+	const GLfloat SPEED = 40.f;
 	const GLfloat SENSITIVITY = 0.1f;
 	const GLfloat ZOOM_MIN = 44.f;
 	const GLfloat ZOOM_MAX = 45.f;

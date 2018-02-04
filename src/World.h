@@ -20,7 +20,7 @@ namespace WorldConsts
 	const int CHUNKSIZE_Y = CHUNKLETSIZE_Y * 4;
 	const int CHUNKSIZE_Z = CHUNKLETSIZE_Z * 1;
 	// generate (world size * world size) chunks around the player (must be odd number!)
-	const int WORLDSIZE = 3;
+	const int WORLDSIZE = 5;
 }
 
 class World
