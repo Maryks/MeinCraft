@@ -16,7 +16,7 @@ WorldManager::WorldManager(Camera& camera, Renderer& renderer)
 	int xCurrentCenterChunk = xCamera >= 0 ? xCamera / WorldConsts::CHUNKSIZE_X : xCamera / WorldConsts::CHUNKSIZE_X - 1;
 	int zCurrentCenterChunk = zCamera >= 0 ? zCamera / WorldConsts::CHUNKSIZE_Z : zCamera / WorldConsts::CHUNKSIZE_Z - 1;
 	// initialize m_lastCenterChunk with values different from current chunk in order to trigger loadChunks() when first entering generateWorld()
-	m_lastCenterChunk = xz_t(xCurrentCenterChunk-1, zCurrentCenterChunk-1);
+	m_lastCenterChunk = xz_t(xCurrentCenterChunk+1, zCurrentCenterChunk+1);
 
 	this->initializeChunkMap();
 
