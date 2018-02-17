@@ -10,7 +10,7 @@ Visual Studio 2015 instructions:
 * Create a new visual studio project: Win32 Console Application: console application, empty project
 * Set the following properties:
   + Debugging: General
-    - 'Environment' -> 'PATH=C:\(...)\SFML\SFML-2.4.2-windows-vc14-32-bit\SFML-2.4.2\bin'
+    - 'Environment' -> 'PATH=C:\(...)\SFML\SFML-2.4.2-windows-vc14-32-bit\SFML-2.4.2\bin;C:\(...)\opengl-wrappers\glew-2.0.0\bin\Release\Win32;'
   + C/C++: General (can be seen if there is a c++ file in the project)
     - 'Additional Include Directories' -> 'C:\(...)\SFML\SFML-2.4.2-windows-vc14-32-bit\SFML-2.4.2\include;C:\(...)\opengl-wrappers\glew-2.0.0\include;C:\(...)\opengl-wrappers\glm'
   + Linker: General
