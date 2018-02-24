@@ -2,27 +2,27 @@
 
 #include "StaticFunctions.h"
 
-void StaticFunctions::playerInput(sf::RenderWindow& window, Camera& camera, GLfloat gDeltaTime)
+void StaticFunctions::playerInput(sf::RenderWindow& window, Camera& camera)
 {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 	{
-		camera.processKeyboardInput(FORWARD, gDeltaTime);
+		camera.processKeyboardInput(FORWARD);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 	{
-		camera.processKeyboardInput(BACKWARD, gDeltaTime);
+		camera.processKeyboardInput(BACKWARD);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 	{
-		camera.processKeyboardInput(LEFT, gDeltaTime);
+		camera.processKeyboardInput(LEFT);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 	{
-		camera.processKeyboardInput(RIGHT, gDeltaTime);
+		camera.processKeyboardInput(RIGHT);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 	{
-		camera.processKeyboardInput(UP, gDeltaTime);
+		camera.processKeyboardInput(UP);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))	// reset camera position and view direction
 	{

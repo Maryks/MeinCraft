@@ -34,6 +34,8 @@ private:
 	const int m_chunkSizeX;
 	const int m_chunkSizeY;
 	const int m_chunkSizeZ;
+	int m_chunkSizeXp2;
+	int m_chunkSizeYp2;
 	int m_chunkBlockPositionX;
 	int m_chunkBlockPositionZ;
 	float m_stride;

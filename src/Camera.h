@@ -15,7 +15,7 @@ enum Camera_Movement
 };
 
 namespace {
-	const GLfloat SPEED = 40.f;
+	const GLfloat SPEED = 0.7f;
 	const GLfloat SENSITIVITY = 0.1f;
 	const GLfloat ZOOM_MIN = 44.f;
 	const GLfloat ZOOM_MAX = 45.f;
@@ -34,7 +34,7 @@ public:
 
 	glm::vec3 getPosition();
 	glm::mat4 getProjectionViewMatrix();
-	void processKeyboardInput(Camera_Movement direction, GLfloat deltaTime);
+	void processKeyboardInput(Camera_Movement direction);
 	void processMouseMovement(GLfloat xOffset, GLfloat yOffset);
 	void processMouseScroll(GLfloat scrollDelta);
 	void resetPosition();

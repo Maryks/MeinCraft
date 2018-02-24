@@ -55,9 +55,9 @@ glm::mat4 Camera::getProjectionViewMatrix()
 	return (m_projection * glm::lookAt(m_position, m_position + m_front, m_up));	// make projection view matrix
 }
 
-void Camera::processKeyboardInput(Camera_Movement direction, GLfloat deltaTime)
+void Camera::processKeyboardInput(Camera_Movement direction)
 {
-	GLfloat velocity = m_movementSpeed * deltaTime;
+	GLfloat velocity = m_movementSpeed;
 	if (direction == FORWARD)
 	{
 		m_position += m_front * velocity;

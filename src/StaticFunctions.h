@@ -8,7 +8,7 @@ class Camera;
 class StaticFunctions
 {
 public:
-	static void playerInput(sf::RenderWindow& window, Camera& camera, GLfloat gDeltaTime);
+	static void playerInput(sf::RenderWindow& window, Camera& camera);
 };
 
 #endif // !STATICFUNCTIONS_H

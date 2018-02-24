@@ -2,8 +2,8 @@
 #define BLOCKDATA_H
 
 #include <iostream>
-#include <map>
 #include <memory>
+#include <unordered_map>
 
 #include "typedefs.h"
 
@@ -37,7 +37,7 @@ namespace Block
 	public:
 		BlockData();
 
-		std::map<Block::ID, std::unique_ptr<Data>> m_DataHolder;
+		std::unordered_map<Block::ID, std::unique_ptr<Data>> m_DataHolder;
 
 		float m_stride;	// offset between adjacent textures in texture sheet
 	};

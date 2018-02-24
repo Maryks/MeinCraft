@@ -20,10 +20,7 @@ std::vector<id_t> World::getChunk(int chunkPositionX, int chunkPositionZ)
 void World::generateChunk(int chunkPositionX, int chunkPositionZ)
 {
 	// initialize chunk with air
-	for (int i = 0; i < (m_chunkSizeX+2)*(m_chunkSizeY+2)*(m_chunkSizeZ+2); ++i)
-	{
-		m_chunk.emplace_back(Block::ID::Air);
-	}
+	m_chunk.assign((m_chunkSizeX + 2)*(m_chunkSizeY + 2)*(m_chunkSizeZ + 2), Block::ID::Air);
 
 	for (int x = 0; x < m_chunkSizeX; ++x)
 	{

@@ -18,22 +18,36 @@ Game::Game()
 	: m_camera(GameConsts::WINDOW_WIDTH, GameConsts::WINDOW_HEIGHT)
 {
 	std::cout << "Game created." << std::endl;
-	this->initialize();
+	this->initializeWindow();
+
+	m_worldMgr = std::make_unique<WorldManager>(m_camera, m_renderer);
 }
 
 void Game::run()
 {
 	sf::Clock deltaClock;
 	sf::Clock fpsClock;
+	sf::Clock fps2Clock;
+	double deltaTime = 0;
 	static int counter = 0;
+	static int counter2 = 0;
 	float fps = 0;
+	float fps2 = 0;
 	int iFps = 0;
+	float secondsBetweenGameUpdates = 1.f / 60;	// makes camera velocity independent of frame rate
 
 	while (m_window->isOpen())
 	{
 		fps += fpsClock.restart().asSeconds();
-		m_deltaTime = deltaClock.restart().asSeconds();
-		StaticFunctions::playerInput(*m_window, m_camera, m_deltaTime);
+		fps2 += fps2Clock.restart().asSeconds();
+
+		// update the camera every 'secondsBetweenGameUpdates' seconds
+		deltaTime += deltaClock.restart().asSeconds();
+		if (deltaTime >= secondsBetweenGameUpdates)
+		{
+			StaticFunctions::playerInput(*m_window, m_camera);
+			deltaTime -= secondsBetweenGameUpdates;
+		}
 
 		this->processEvents();
 		this->render();
@@ -46,6 +60,14 @@ void Game::run()
 			fps = 0;
 		}
 		++counter;
+
+		if (counter2 == 100)
+		{
+			std::cout << "\r FPS: " << static_cast<int>(counter2 * 1.f / fps2) << " ";
+			counter2 = 0;
+			fps2 = 0;
+		}
+		++counter2;
 
 		int xCamera = static_cast<int>(std::floor(m_camera.getPosition().x));
 		int yCamera = static_cast<int>(std::floor(m_camera.getPosition().y));
@@ -64,7 +86,7 @@ void Game::run()
 	}
 }
 
-void Game::initialize()
+void Game::initializeWindow()
 {
 	sf::ContextSettings contextSettings;
 	contextSettings.depthBits = 24;	// bits of depth buffer
@@ -89,10 +111,6 @@ void Game::initialize()
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_TEXTURE_2D);	// tell OpenGL to use textures when drawing
-
-	m_deltaTime = 0.f;	// makes camera velocity independent of frame rate
-
-	m_worldMgr = std::make_unique<WorldManager>(m_camera, m_renderer);
 }
 
 void Game::processEvents()

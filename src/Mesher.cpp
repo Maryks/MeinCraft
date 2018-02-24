@@ -9,6 +9,8 @@ Mesher::Mesher()
 	m_chunkSizeZ(WorldConsts::CHUNKSIZE_Z)
 {
 	m_stride = m_blockData.m_stride;
+	m_chunkSizeXp2 = m_chunkSizeX + 2;
+	m_chunkSizeYp2 = m_chunkSizeY + 2;
 }
 
 // if a block has an air neighbor
@@ -113,7 +115,7 @@ id_t Mesher::getBlockID(int x, int y, int z)
 	++x;
 	++y;
 	++z;
-	return m_worldData->at(x + (y + z * (m_chunkSizeY + 2)) * (m_chunkSizeX + 2));
+	return m_worldData->at(x + (y + z * (m_chunkSizeYp2)) * (m_chunkSizeXp2));
 }
 
 void Mesher::setTextureCoordinates(id_t value, Face face)
@@ -121,57 +123,63 @@ void Mesher::setTextureCoordinates(id_t value, Face face)
 	float u;
 	float v;
 	Block::ID id = static_cast<Block::ID>(value);
+	Block::uvCoordinates uv;
 	if (face == Face::Top)
 	{
-		u = m_blockData.m_DataHolder.at(id)->topCoords.u;
-		v = m_blockData.m_DataHolder.at(id)->topCoords.v;
+		uv = m_blockData.m_DataHolder[id]->topCoords;
+		u = uv.u;
+		v = uv.v;
 	}
 	else if (face == Face::Side)
 	{
-		u = m_blockData.m_DataHolder.at(id)->sideCoords.u;
-		v = m_blockData.m_DataHolder.at(id)->sideCoords.v;
+		uv = m_blockData.m_DataHolder[id]->sideCoords;
+		u = uv.u;
+		v = uv.v;
 	}
 	else // if (face == Face::Bottom)
 	{
-		u = m_blockData.m_DataHolder.at(id)->bottomCoords.u;
-		v = m_blockData.m_DataHolder.at(id)->bottomCoords.v;
+		uv = m_blockData.m_DataHolder[id]->bottomCoords;
+		u = uv.u;
+		v = uv.v;
 	}
 
 	u *= m_stride;
 	v *= m_stride;
 
-	// bottom left
-	m_texCoords->emplace_back(u);
-	m_texCoords->emplace_back(v + m_stride);
-	// bottom right
-	m_texCoords->emplace_back(u + m_stride);
-	m_texCoords->emplace_back(v + m_stride);
-	// top right
-	m_texCoords->emplace_back(u + m_stride);
-	m_texCoords->emplace_back(v);
-	// top left
-	m_texCoords->emplace_back(u);
-	m_texCoords->emplace_back(v);
+	m_texCoords->insert(m_texCoords->end(), {
+		// bottom left
+		u,
+		v + m_stride,
+		// bottom right
+		u + m_stride,
+		v + m_stride,
+		// top right
+		u + m_stride,
+		v,
+		// top left
+		u,
+		v});
 }
 
 void Mesher::setVertexCoordinates(float p1, float p2, float p3, float p4, float p5, float p6, float p7, float p8, float p9, float p10, float p11, float p12)
 {
-	// bottom left
-	m_vertCoords->emplace_back(p1 + m_chunkBlockPositionX);
-	m_vertCoords->emplace_back(p2);
-	m_vertCoords->emplace_back(p3 + m_chunkBlockPositionZ);
-	// bottom right
-	m_vertCoords->emplace_back(p4 + m_chunkBlockPositionX);
-	m_vertCoords->emplace_back(p5);
-	m_vertCoords->emplace_back(p6 + m_chunkBlockPositionZ);
-	// top right
-	m_vertCoords->emplace_back(p7 + m_chunkBlockPositionX);
-	m_vertCoords->emplace_back(p8);
-	m_vertCoords->emplace_back(p9 + m_chunkBlockPositionZ);
-	// top left
-	m_vertCoords->emplace_back(p10 + m_chunkBlockPositionX);
-	m_vertCoords->emplace_back(p11);
-	m_vertCoords->emplace_back(p12 + m_chunkBlockPositionZ);
+	m_vertCoords->insert(m_vertCoords->end(), {
+		// bottom left
+		p1 + m_chunkBlockPositionX,
+		p2,
+		p3 + m_chunkBlockPositionZ,
+		// bottom right
+		p4 + m_chunkBlockPositionX,
+		p5,
+		p6 + m_chunkBlockPositionZ,
+		// top right
+		p7 + m_chunkBlockPositionX,
+		p8,
+		p9 + m_chunkBlockPositionZ,
+		// top left
+		p10 + m_chunkBlockPositionX,
+		p11,
+		p12 + m_chunkBlockPositionZ});
 }
 
 // static

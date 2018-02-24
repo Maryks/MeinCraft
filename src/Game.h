@@ -24,11 +24,10 @@ public:
 	void run();
 
 private:
-	void initialize();
+	void initializeWindow();
 	void processEvents();
 	void render();
 
-	GLfloat m_deltaTime;
 	Camera m_camera;
 	Renderer m_renderer;
 	std::unique_ptr<sf::RenderWindow> m_window;
